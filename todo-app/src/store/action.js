@@ -28,3 +28,9 @@ export function clearCompleted(){
     type: 'CLEAR_TODOS',
   }
 }
+
+export function changeFilter(filter){
+  return {
+    type: `FILTER_${filter}`,
+  }
+}

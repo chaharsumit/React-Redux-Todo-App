@@ -1,8 +1,16 @@
 import React from "react";
-import { addTodo, toggleTodo, deleteTodo, clearCompleted } from "../store/action";
+import {
+  addTodo,
+  toggleTodo,
+  deleteTodo,
+  clearCompleted,
+  changeFilter
+} from "../store/action";
 import { connect } from "react-redux";
 
 function App(props) {
+  let todos = [];
+
   function handleInput(event) {
     if (event.key === "Enter" && event.target.value !== "") {
       props.dispatch(addTodo(event.target.value));
@@ -18,9 +26,33 @@ function App(props) {
     props.dispatch(deleteTodo(id));
   }
 
-  function handleClear(){
+  function handleClear() {
     props.dispatch(clearCompleted());
   }
+
+  function handleFilter({ target }) {
+    props.dispatch(changeFilter(target.innerText.toUpperCase()));
+  }
+
+  function filterTodos() {
+    console.log(props.filter);
+    switch (props.filter) {
+      case "Active":
+        todos = props.allTodos.todos.filter(todo => !todo.isDone);
+        break;
+      case "Completed":
+        todos = props.allTodos.todos.filter(todo => todo.isDone);
+        break;
+      case "All":
+        todos = props.allTodos.todos;
+        break;
+      default:
+        todos = props.allTodos.todos;
+        break;
+    }
+  }
+
+  filterTodos();
 
   return (
     <div className="app-container">
@@ -32,19 +64,28 @@ function App(props) {
         onKeyPress={event => handleInput(event)}
       />
       <ul className="todo-list">
-        {props.allTodos.todos.map(todo => (
-          <li className="todo-list-item" key={todo.id} >
-            <input type="checkbox" onClick={() => handleToggle(todo.id)} />
+        {todos.map(todo => (
+          <li className="todo-list-item" key={todo.id}>
+            <input type="checkbox" onChange={() => handleToggle(todo.id)} checked={todo.isDone}/>
             <p>{todo.name}</p>
             <span onClick={() => removeTodo(todo.id)}>❌</span>
+            {filterTodos()}
           </li>
         ))}
       </ul>
       <div className="filters-list">
-        <button className="filter-btn active-filter">All</button>
-        <button className="filter-btn">Active</button>
-        <button className="filter-btn">Completed</button>
-        <button className="filter-btn" onClick={handleClear}>Clear</button>
+        <button onClick={handleFilter} className={props.filter === 'All' ? 'filter-btn active-filter' : "filter-btn"}>
+          All
+        </button>
+        <button onClick={handleFilter} className={props.filter === 'Active' ? 'filter-btn active-filter' : "filter-btn"}>
+          Active
+        </button>
+        <button onClick={handleFilter} className={props.filter === 'Completed' ? 'filter-btn active-filter' : "filter-btn"}>
+          Completed
+        </button>
+        <button className="filter-btn" onClick={handleClear}>
+          Clear
+        </button>
       </div>
     </div>
   );
@@ -52,7 +93,8 @@ function App(props) {
 
 function mapStateToProps(state) {
   return {
-    allTodos: state.todoReducer
+    allTodos: state.todoReducer,
+    filter: state.filterReducer
   };
 }
 

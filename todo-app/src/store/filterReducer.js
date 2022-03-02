@@ -1,11 +1,16 @@
 function filterReducer(state = 'All', action) {
   switch (action.type) {
     case "FILTER_COMPLETED":
-      return "Completed";
+      state = "Completed"
+      return state;
     case "FILTER_ACTIVE":
-      return 'Active';
+      state = 'Active'
+      return state;
+    case 'FILTER_ALL':
+      state = 'All'
+      return state;
     default:
-    return 'All';
+      return state;
   }
 }
 
